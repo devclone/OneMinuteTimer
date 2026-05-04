@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_ringtone_player/flutter_ringtone_player.dart'; // Import ตัวเล่นเสียง
 
 void main() => runApp(const TimerApp());
 
@@ -26,12 +27,17 @@ class _TimerHomePageState extends State<TimerHomePage> {
   Timer? timer;
 
   void startTimer() {
+    // ป้องกันการกด Start ซ้อนกัน
+    timer?.cancel();
+    
     timer = Timer.periodic(const Duration(seconds: 1), (_) {
       setState(() {
         if (seconds > 0) {
           seconds--;
         } else {
           stopTimer();
+          // เมื่อหมดเวลา ให้เล่นเสียง Notification ของ Android
+          FlutterRingtonePlayer.playNotification(); 
         }
       });
     });
@@ -39,6 +45,7 @@ class _TimerHomePageState extends State<TimerHomePage> {
 
   void stopTimer() {
     timer?.cancel();
+    FlutterRingtonePlayer.stop(); // หยุดเสียงถ้ามีการกดหยุด
   }
 
   void resetTimer() {
@@ -49,7 +56,7 @@ class _TimerHomePageState extends State<TimerHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
+      app_body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -63,17 +70,22 @@ class _TimerHomePageState extends State<TimerHomePage> {
                     value: seconds / maxSeconds,
                     strokeWidth: 12,
                     backgroundColor: Colors.grey[800],
-                    color: Colors.cyanAccent,
+                    color: (seconds == 0) ? Colors.redAccent : Colors.cyanAccent,
                   ),
                 ),
-                Text('$seconds', style: const TextStyle(fontSize: 80, fontWeight: FontWeight.bold)),
+                Text('$seconds', 
+                  style: const TextStyle(fontSize: 80, fontWeight: FontWeight.bold)
+                ),
               ],
             ),
             const SizedBox(height: 50),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                ElevatedButton(onPressed: startTimer, child: const Text("START")),
+                ElevatedButton(
+                  onPressed: seconds > 0 ? startTimer : null, 
+                  child: const Text("START")
+                ),
                 const SizedBox(width: 20),
                 ElevatedButton(onPressed: stopTimer, child: const Text("STOP")),
                 const SizedBox(width: 20),
