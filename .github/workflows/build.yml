@@ -1,20 +1,18 @@
 name: Flutter Build APK
-dependencies:
-  flutter:
-    sdk: flutter
-  flutter_ringtone_player: ^3.2.0  # เพิ่มบรรทัดนี้
+
 on:
   push:
+    branches: [ main ]
+  pull_request:
     branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      # อัปเดตเป็น v4
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
       
-      # อัปเดตเป็น v4
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -32,7 +30,6 @@ jobs:
       - name: Build APK
         run: flutter build apk --release
         
-      # แก้ไขจุดที่ Error: เปลี่ยนจาก v3 เป็น v4
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
