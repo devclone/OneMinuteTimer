@@ -7,10 +7,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_beep: ^1.0.0
+  audioplayers: ^6.0.0 # ใช้ตัวนี้แทน มั่นคงกว่า
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
 flutter:
   uses-material-design: true
+  assets:
+    - assets/notification.mp3 # อย่าลืมสร้างโฟลเดอร์ assets และใส่ไฟล์เสียง

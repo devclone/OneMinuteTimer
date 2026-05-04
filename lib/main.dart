@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_beep/flutter_beep.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 void main() => runApp(const OneMinuteApp());
 
@@ -26,6 +26,7 @@ class _TimerPageState extends State<TimerPage> {
   int seconds = 60;
   Timer? timer;
   bool isRunning = false;
+  final player = AudioPlayer();
 
   void toggleTimer() {
     if (isRunning) {
@@ -40,10 +41,26 @@ class _TimerPageState extends State<TimerPage> {
         } else {
           t.cancel();
           setState(() => isRunning = false);
-          FlutterBeep.beep(); // เสียงแจ้งเตือน
+          _playAlarm();
         }
       });
     }
+  }
+
+  Future<void> _playAlarm() async {
+    // ใช้เสียง Notification พื้นฐานของระบบ
+    try {
+      await player.play(AssetSource('notification.mp3'));
+    } catch (e) {
+      debugPrint("Sound error: $e");
+    }
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    player.dispose();
+    super.dispose();
   }
 
   @override
@@ -57,7 +74,6 @@ class _TimerPageState extends State<TimerPage> {
             const SizedBox(height: 30),
             ElevatedButton(
               onPressed: toggleTimer,
-              style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20)),
               child: Text(isRunning ? "STOP" : "START"),
             ),
             if (!isRunning)
