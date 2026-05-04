@@ -8,8 +8,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
       
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -22,19 +21,16 @@ jobs:
         with:
           flutter-version: '3.x'
 
-      # แก้ไขจุดนี้: ใช้ --org แทน --namespace และเพิ่มคำสั่งสร้างไฟล์ android ให้ครบ
-      - name: Repair/Create Flutter Project
-        run: |
-          flutter create --platforms=android --org com.oneminute .
-          
-      - name: Install dependencies
-        run: flutter pub get
-        
+      - name: Create Android Structure
+        run: flutter create --platforms=android --org com.yourdomain .
+
       - name: Build APK
-        run: flutter build apk --release
+        run: |
+          flutter pub get
+          flutter build apk --release
         
-      - name: Upload Artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: release-apk
+          name: OneMinuteTimer-APK
           path: build/app/outputs/flutter-apk/app-release.apk
