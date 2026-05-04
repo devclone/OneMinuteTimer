@@ -1,5 +1,8 @@
 name: Flutter Build APK
-
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_ringtone_player: ^3.2.0  # เพิ่มบรรทัดนี้
 on:
   push:
     branches: [ main ]
