@@ -2,16 +2,18 @@ name: Flutter Build APK
 
 on:
   push:
-    branches: [ main ] # หรือชื่อ branch หลักของคุณ
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      # อัปเดตเป็น v4
+      - uses: actions/checkout@v4
       
+      # อัปเดตเป็น v4
       - name: Setup Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
@@ -27,8 +29,9 @@ jobs:
       - name: Build APK
         run: flutter build apk --release
         
+      # แก้ไขจุดที่ Error: เปลี่ยนจาก v3 เป็น v4
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
