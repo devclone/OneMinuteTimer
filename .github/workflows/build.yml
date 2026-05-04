@@ -3,8 +3,6 @@ name: Flutter Build APK
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
 jobs:
   build:
@@ -23,6 +21,11 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.x'
+
+      # ขั้นตอนการแก้ปัญหา: สร้างโครงสร้าง Android Scaffold ใหม่
+      - name: Repair/Create Flutter Project
+        run: |
+          flutter create --platforms=android --namespace=com.oneminute.timer .
           
       - name: Install dependencies
         run: flutter pub get
