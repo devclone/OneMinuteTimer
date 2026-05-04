@@ -22,10 +22,10 @@ jobs:
         with:
           flutter-version: '3.x'
 
-      # ขั้นตอนการแก้ปัญหา: สร้างโครงสร้าง Android Scaffold ใหม่
+      # แก้ไขจุดนี้: ใช้ --org แทน --namespace และเพิ่มคำสั่งสร้างไฟล์ android ให้ครบ
       - name: Repair/Create Flutter Project
         run: |
-          flutter create --platforms=android --namespace=com.oneminute.timer .
+          flutter create --platforms=android --org com.oneminute .
           
       - name: Install dependencies
         run: flutter pub get
