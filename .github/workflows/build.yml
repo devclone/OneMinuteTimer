@@ -21,13 +21,21 @@ jobs:
         with:
           flutter-version: '3.x'
 
-      - name: Create Android Structure
-        run: flutter create --platforms=android --org com.yourdomain .
+      - name: Create Project Structure
+        run: flutter create --platforms=android --org com.oneminute .
+
+      - name: Fix Namespace Issue
+        run: |
+          # บังคับให้ Android Gradle Plugin ยอมรับการไม่มี namespace ใน Library เก่า
+          echo "android.defaults.buildfeatures.buildconfig=true" >> android/gradle.properties
+          echo "android.nonTransitiveRClass=false" >> android/gradle.properties
+          
+          # ใช้ script แก้ไขไฟล์ build.gradle ของ library ที่มีปัญหาโดยตรงใน pub-cache
+          flutter pub get
+          find /home/runner/.pub-cache -name "build.gradle" -exec sed -i '/android {/a \    namespace "com.example.flutter_beep"' {} +
 
       - name: Build APK
-        run: |
-          flutter pub get
-          flutter build apk --release
+        run: flutter build apk --release
         
       - name: Upload APK
         uses: actions/upload-artifact@v4
