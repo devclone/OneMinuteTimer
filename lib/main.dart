@@ -1,51 +1,58 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_ringtone_player/flutter_ringtone_player.dart'; // Import ตัวเล่นเสียง
+import 'package:flutter_beep/flutter_beep.dart'; // ใช้ตัวนี้แทนเพื่อเลี่ยงบั๊ก Gradle
 
-void main() => runApp(const TimerApp());
+void main() => runApp(const OneMinuteApp());
 
-class TimerApp extends StatelessWidget {
-  const TimerApp({super.key});
+class OneMinuteApp extends StatelessWidget {
+  const OneMinuteApp({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData.dark(),
-      home: const TimerHomePage(),
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: const Color(0xFF121212),
+        primaryColor: Colors.cyanAccent,
+      ),
+      home: const TimerPage(),
     );
   }
 }
 
-class TimerHomePage extends StatefulWidget {
-  const TimerHomePage({super.key});
+class TimerPage extends StatefulWidget {
+  const TimerPage({super.key});
   @override
-  State<TimerHomePage> createState() => _TimerHomePageState();
+  State<TimerPage> createState() => _TimerPageState();
 }
 
-class _TimerHomePageState extends State<TimerHomePage> {
+class _TimerPageState extends State<TimerPage> {
   static const maxSeconds = 60;
   int seconds = maxSeconds;
   Timer? timer;
+  bool isActive = false;
 
   void startTimer() {
-    // ป้องกันการกด Start ซ้อนกัน
-    timer?.cancel();
-    
+    if (isActive) return;
+    setState(() => isActive = true);
     timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      setState(() {
-        if (seconds > 0) {
-          seconds--;
-        } else {
-          stopTimer();
-          // เมื่อหมดเวลา ให้เล่นเสียง Notification ของ Android
-          FlutterRingtonePlayer.playNotification(); 
-        }
-      });
+      if (seconds > 0) {
+        setState(() => seconds--);
+      } else {
+        onTimerFinished();
+      }
     });
+  }
+
+  void onTimerFinished() {
+    stopTimer();
+    // เล่นเสียงเตือนมาตรฐาน Android
+    FlutterBeep.beep();
+    // ถ้าต้องการเสียงยาวขึ้นสามารถเรียกซ้ำหรือใช้ FlutterBeep.playSysSound(AndroidSoundIDs.TONE_CDMA_PIP)
   }
 
   void stopTimer() {
     timer?.cancel();
-    FlutterRingtonePlayer.stop(); // หยุดเสียงถ้ามีการกดหยุด
+    setState(() => isActive = false);
   }
 
   void resetTimer() {
@@ -56,45 +63,56 @@ class _TimerHomePageState extends State<TimerHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      app_body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Stack(
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text("ONE MINUTE TIMER", 
+            style: TextStyle(letterSpacing: 2, color: Colors.grey)),
+          const SizedBox(height: 40),
+          Center(
+            child: Stack(
               alignment: Alignment.center,
               children: [
                 SizedBox(
-                  width: 250,
-                  height: 250,
+                  width: 280,
+                  height: 280,
                   child: CircularProgressIndicator(
                     value: seconds / maxSeconds,
-                    strokeWidth: 12,
-                    backgroundColor: Colors.grey[800],
-                    color: (seconds == 0) ? Colors.redAccent : Colors.cyanAccent,
+                    strokeWidth: 10,
+                    backgroundColor: Colors.white10,
+                    color: seconds < 10 ? Colors.redAccent : Colors.cyanAccent,
                   ),
                 ),
                 Text('$seconds', 
-                  style: const TextStyle(fontSize: 80, fontWeight: FontWeight.bold)
-                ),
+                  style: const TextStyle(fontSize: 90, fontWeight: FontWeight.w200)),
               ],
             ),
-            const SizedBox(height: 50),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
-                  onPressed: seconds > 0 ? startTimer : null, 
-                  child: const Text("START")
-                ),
-                const SizedBox(width: 20),
-                ElevatedButton(onPressed: stopTimer, child: const Text("STOP")),
-                const SizedBox(width: 20),
-                ElevatedButton(onPressed: resetTimer, child: const Text("RESET")),
-              ],
-            ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 60),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildButton("START", startTimer, !isActive && seconds > 0),
+              const SizedBox(width: 20),
+              _buildButton("STOP", stopTimer, isActive),
+              const SizedBox(width: 20),
+              _buildButton("RESET", resetTimer, true),
+            ],
+          ),
+        ],
       ),
+    );
+  }
+
+  Widget _buildButton(String label, VoidCallback onPressed, bool enabled) {
+    return ElevatedButton(
+      onPressed: enabled ? onPressed : null,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.white10,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+      ),
+      child: Text(label),
     );
   }
 }
